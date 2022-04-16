@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(description='Dataset Visualization')
 parser.add_argument(
     '--root_dir',
     type=str,
-    default='/opt/ml/input/dataset',
+    default='/opt/ml/input/data/ICDAR17_Korean/images',
     help='데이터 루트 디렉토리',
 )
 parser.add_argument(
@@ -53,11 +53,11 @@ def read_img(path: str, target_h: int = 1000) -> Image:
     words = ann['words']
 
     # resize
-    h, w = img.height, img.width
-    ratio = target_h/h
-    target_w = int(ratio * w)
-    img = img.resize((target_w, target_h))
-
+    # h, w = img.height, img.width
+    # ratio = target_h/h
+    # target_w = int(ratio * w)
+    # img = img.resize((target_w, target_h))
+    ratio = 1
     # draw polygon
     for key, val in words.items():
         poly = val['points']
@@ -77,7 +77,7 @@ def draw_polygon(img: Image, pts: Sequence[point], illegibility: bool):
 
 
 # -- load annotations
-with open('/opt/ml/input/dataset/annotation.json', 'r') as f:
+with open('/opt/ml/input/data/ICDAR17_Korean/ufo/annotation.json', 'r') as f:
     anno = json.load(f)
 
 fnames = tuple(anno['images'].keys())

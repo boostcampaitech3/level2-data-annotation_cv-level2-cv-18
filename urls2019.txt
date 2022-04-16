@@ -1,0 +1,3 @@
+https://datasets.cvc.uab.es/rrc/ImagesPart1.zip
+https://datasets.cvc.uab.es/rrc/ImagesPart2.zip
+https://datasets.cvc.uab.es/rrc/train_gt_t13.zip
