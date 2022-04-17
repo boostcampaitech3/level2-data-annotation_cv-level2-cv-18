@@ -53,6 +53,7 @@ def read_img(path: str, target_h: int = 1000) -> Image:
     words = ann['words']
 
     # resize
+    # 주석처리, ratio = 1 
     h, w = img.height, img.width
     ratio = target_h/h
     target_w = int(ratio * w)
