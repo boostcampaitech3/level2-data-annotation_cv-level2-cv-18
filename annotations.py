@@ -77,7 +77,7 @@ def draw_polygon(img: Image, pts: Sequence[point], illegibility: bool):
 
 
 # -- load annotations
-with open('/opt/ml/input/data/ICDAR17_Korean/ufo/annotation.json', 'r') as f:
+with open('/opt/ml/input/data/ICDAR17_Korean/ufo/4points_fixed_ill_EDA2.json', 'r') as f:
     anno = json.load(f)
 
 fnames = tuple(anno['images'].keys())

@@ -20,6 +20,7 @@ IMAGE_EXTENSIONS = {'.gif', '.jpg', '.png'}
 LANGUAGE_MAP = {
     'Korean': 'ko',
     'Latin': 'en',
+    'Chinese': 'ch',
     'Symbols': None,
     'None':None
 }
@@ -48,10 +49,7 @@ class MLT17Dataset(Dataset):
             assert label_path in label_paths
 
             words_info, extra_info = self.parse_label_file(label_path)
-            if 'ko' not in extra_info['languages'] or extra_info['languages'].difference({'ko', 'en',None}):
-                continue
-
-            if sample_id[-4]=='2':
+            if extra_info['languages'].difference({'ko', 'en','ch',None}):
                 continue
 
             sample_ids.append(sample_id)
@@ -131,7 +129,7 @@ def divide_text():
 
 
 def main():
-    dst_image_dir = osp.join(DST_DATASET_DIR, 'images2019')
+    dst_image_dir = osp.join(DST_DATASET_DIR, 'images_final')
     # dst_image_dir = None
     divide_text()
     mlt_train1 = MLT17Dataset(osp.join(SRC_DATASET_DIR, 'images/ImagesPart1'),
@@ -151,7 +149,7 @@ def main():
 
     ufo_dir = osp.join(DST_DATASET_DIR, 'ufo')
     maybe_mkdir(ufo_dir)
-    with open(osp.join(ufo_dir, 'train2019.json'), 'w') as f:
+    with open(osp.join(ufo_dir, 'train2019_final.json'), 'w') as f:
         json.dump(anno, f, indent=4)
 
 

@@ -3,14 +3,14 @@ import os
 import os.path as osp
 from glob import glob
 from PIL import Image
-import shutil
+
 import numpy as np
 from tqdm import tqdm
 
 from torch.utils.data import DataLoader, ConcatDataset, Dataset
 
 
-SRC_DATASET_DIR = '/opt/ml/input/data/ICDAR19_MLT'  # FIXME
+SRC_DATASET_DIR = '/opt/ml/input/data/ICDAR17_MLT'  # FIXME
 DST_DATASET_DIR = '/opt/ml/input/data/ICDAR17_Korean'  # FIXME
 
 NUM_WORKERS = 32  # FIXME
@@ -20,17 +20,17 @@ IMAGE_EXTENSIONS = {'.gif', '.jpg', '.png'}
 LANGUAGE_MAP = {
     'Korean': 'ko',
     'Latin': 'en',
+    'Chinese': 'ch',
     'Symbols': None,
     'None':None
 }
-
 def get_language_token(x):
     return LANGUAGE_MAP.get(x, 'others')
 
 
 def maybe_mkdir(x):
     if not osp.exists(x):
-        os.makedirs(x, exist_ok=True)
+        os.makedirs(x)
 
 
 class MLT17Dataset(Dataset):
@@ -44,14 +44,11 @@ class MLT17Dataset(Dataset):
         for image_path in image_paths:
             sample_id = osp.splitext(osp.basename(image_path))[0]
 
-            label_path = osp.join(label_dir, '{}.txt'.format(sample_id))
+            label_path = osp.join(label_dir, 'gt_{}.txt'.format(sample_id))
             assert label_path in label_paths
 
             words_info, extra_info = self.parse_label_file(label_path)
-            if 'ko' not in extra_info['languages'] or extra_info['languages'].difference({'ko', 'en',None}):
-                continue
-
-            if sample_id[-4]=='2':
+            if extra_info['languages'].difference({'ko', 'en','ch',None}):
                 continue
 
             sample_ids.append(sample_id)
@@ -103,7 +100,6 @@ class MLT17Dataset(Dataset):
             illegibility = transcription == '###'
             orientation = 'Horizontal'
             language = get_language_token(language)
-            
             if not language:
                 language_list=[]
             else:
@@ -116,31 +112,18 @@ class MLT17Dataset(Dataset):
 
         return words_info, dict(languages=languages)
 
-def divide_text():
-    if not os.path.isdir(osp.join(SRC_DATASET_DIR, 'gt1')):
-        os.mkdir(osp.join(SRC_DATASET_DIR, 'gt1'))
-    if not os.path.isdir(osp.join(SRC_DATASET_DIR, 'gt2')):
-        os.mkdir(osp.join(SRC_DATASET_DIR, 'gt2'))
-    label_paths = set(glob(osp.join(SRC_DATASET_DIR, 'gt/*.txt')))
-    for label_path in label_paths:
-        if os.path.exists(label_path):
-            if int(label_path[-9:-4])<5001:
-                shutil.copy(label_path,osp.join(SRC_DATASET_DIR, 'gt1/'+label_path[-16:]))
-            else:
-                shutil.copy(label_path,osp.join(SRC_DATASET_DIR, 'gt2/'+label_path[-16:]))
-
 
 def main():
-    dst_image_dir = osp.join(DST_DATASET_DIR, 'images2019')
+    dst_image_dir = osp.join(DST_DATASET_DIR, 'images_final')
     # dst_image_dir = None
-    divide_text()
-    mlt_train1 = MLT17Dataset(osp.join(SRC_DATASET_DIR, 'images/ImagesPart1'),
-                             osp.join(SRC_DATASET_DIR, 'gt1'),
+
+    mlt_train = MLT17Dataset(osp.join(SRC_DATASET_DIR, 'raw/ch8_training_images'),
+                             osp.join(SRC_DATASET_DIR, 'raw/ch8_training_gt'),
                              copy_images_to=dst_image_dir)
-    mlt_train2 = MLT17Dataset(osp.join(SRC_DATASET_DIR, 'images/ImagesPart2'),
-                             osp.join(SRC_DATASET_DIR, 'gt2'),
+    mlt_valid = MLT17Dataset(osp.join(SRC_DATASET_DIR, 'raw/ch8_validation_images'),
+                             osp.join(SRC_DATASET_DIR, 'raw/ch8_validation_gt'),
                              copy_images_to=dst_image_dir)
-    mlt_merged = ConcatDataset([mlt_train1, mlt_train2])
+    mlt_merged = ConcatDataset([mlt_train, mlt_valid])
 
     anno = dict(images=dict())
     with tqdm(total=len(mlt_merged)) as pbar:
@@ -151,7 +134,7 @@ def main():
 
     ufo_dir = osp.join(DST_DATASET_DIR, 'ufo')
     maybe_mkdir(ufo_dir)
-    with open(osp.join(ufo_dir, 'train2019.json'), 'w') as f:
+    with open(osp.join(ufo_dir, 'train2017_final.json'), 'w') as f:
         json.dump(anno, f, indent=4)
 
 
