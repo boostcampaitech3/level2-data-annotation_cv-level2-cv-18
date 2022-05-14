@@ -160,7 +160,7 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 - 총 19 팀 참여
 - Public : 13등 -> Private : 5등
 
-![image](https://user-images.githubusercontent.com/59071505/168433272-8ab8231a-5bca-497e-ba67-9bfa6c734a1e.png)
+![image](https://user-images.githubusercontent.com/59071505/168441937-2fdb6476-7554-4208-8abc-386c8d71fafc.png)
 
 &nbsp;
 |  | Data | F1 score | recall | precision |
