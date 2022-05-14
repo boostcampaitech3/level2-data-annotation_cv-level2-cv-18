@@ -3,7 +3,6 @@
 
 &nbsp; 
 ## 🔥 Member 🔥
----
 <table>
   <tr height="125px">
     <td align="center" width="120px">
@@ -50,15 +49,14 @@
 
 &nbsp; 
 ## 🔍Project Overview
----
 
 스마트폰으로 카드를 결제하거나, 카메라로 카드를 인식할 경우 자동으로 카드 번호가 입력되는 경우가 있습니다. 또 주차장에 들어가면 차량 번호가 자동으로 인식되는 경우도 흔히 있습니다. 이처럼 OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미지 속에 있는 문자를 얻은 다음 이를 컴퓨터가 인식할 수 있도록 하는 기술로, 컴퓨터 비전 분야에서 현재 널리 쓰이는 대표적인 기술 중 하나입니다.
 
 OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), 정렬기 (Serializer) 등의 모듈로 이루어져 있습니다. 본 대회는 아래와 같은 특징이 있습니다.
 
 &nbsp;
+
 ## ❗Competitioin_rules
----
 - 본 대회에서는 '글자 검출' task 만을 해결
   
 - **Input** : 글자가 포함된 전체 이미지
@@ -78,7 +76,6 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 &nbsp;
 
 ## 🗂️Dataset
----
 - Upstage_data : 1288 images
   
 - ICDAR17_MLT : 9000 images
@@ -88,7 +85,6 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 &nbsp;
 
 ## 🧱Structure
----
 ├── code  
 │   ├── model.py  
 │   ├── loss.py  
@@ -110,7 +106,6 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 &nbsp;
 
 ## 🧪Experiments
----
 1. Upstage annotation 수정
      - 캠퍼들이 작업한 Upstage image들의 annotation이 제대로 되어있지 않은 것을 확인
      - 1288장의 이미지들을 전수조사하여 Labelme를 통해 수정
@@ -122,8 +117,8 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 
 
 2. ICDAR 데이터의 제외영역 포함 여부
-   - ICDAR 데이터의 경우, annotation의 기준이 기존의 annotation guide와 상당히 달랐다.
-   - test data의 경우 기존의 annotation guide를 따를거라 생각하여, 제외영역을 학습에 포함하였다.
+   - ICDAR 데이터의 경우, annotation의 기준이 기존의 annotation guide와 상당히 다른 것을 확인
+   - test data의 경우 기존의 annotation guide를 따를거라 생각하여, 제외영역을 학습에 포함
 
     |  | Data | F1 score | recall | precision |
     | --- | --- | --- | --- | --- |
@@ -159,7 +154,6 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
     
 
 ## 🏆Result
----
 - 총 19 팀 참여
 - Public : 13등 -> Private : 5등
 
@@ -175,7 +169,6 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 &nbsp;
 
 ## 💡Usage
----
 1. Install Requirements
     ```
     pip install -r requirements.txt
