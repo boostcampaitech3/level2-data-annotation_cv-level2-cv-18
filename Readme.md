@@ -67,7 +67,6 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
     - east_dataset.py
     - detect.py
 
- 
 - 평가방법 : Deteval
   1) 모든 정답/예측박스들에 대해서 Area Recall, Area Precision을 미리 계산해냅니다.
   2) 모든 정답 박스와 예측 박스를 순회하면서, 매칭이 되었는지 판단하여 박스 레벨로 정답 여부를 측정합니다.
@@ -107,14 +106,15 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 
 ## 🧪Experiments
 1. Upstage annotation 수정
-     - 캠퍼들이 작업한 Upstage image들의 annotation이 제대로 되어있지 않은 것을 확인
-     - 1288장의 이미지들을 전수조사하여 Labelme를 통해 수정
+   - 캠퍼들이 작업한 Upstage image들의 annotation이 제대로 되어있지 않은 것을 확인
+   - 1288장의 이미지들을 전수조사하여 Labelme를 통해 수정
 
     |  | Data | F1 score | recall | precision |
     | --- | --- | --- | --- | --- |
     | 수정 전 | ICDAR17_MLT(ko) + upstage data | 0.4517 | 0.3470 | 0.6468 |
     | 수정 후 | ICDAR17_MLT(ko) + upstage data | 0.5078 | 0.3938 | 0.7150 |
 
+&nbsp;
 
 2. ICDAR 데이터의 제외영역 포함 여부
    - ICDAR 데이터의 경우, annotation의 기준이 기존의 annotation guide와 상당히 다른 것을 확인
@@ -125,6 +125,8 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
     | 제외영역 불포함 | ICDAR17_MLT(ko) + ICDAR19_MLT(ko) | 0.5477 | 0.4279 | 0.7608 |
     | 제외영역 포함 | ICDAR17_MLT(ko) + ICDAR19_MLT(ko) | 0.5856 | 0.4712 | 0.7733 |
 
+&nbsp;
+
 3. Augmentation
    - augmentation이 적용된 이미지를 시각화해보면서 적절한 augmentation 기법을 선정
    - 대회 Base augmentation(flip,rotate,crop)
@@ -134,6 +136,8 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
     | --- | --- | --- | --- | --- |
     | Base | ICDAR17_MLT(ko) | 0.4586 | 0.3495 | 0.6664 |
     | Add augmentation | ICDAR17_MLT(ko) | 0.6270 | 0.5241 | 0.7801 |
+
+&nbsp;
 
 4. 다양한 데이터셋 비교
    - Korean, English 뿐만 아니라 다양한 언어를 학습에 포함
@@ -150,8 +154,7 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
     | 7 | ICDAR17_MLT(all) + ICDAR19_MLT(all) + upstage data | 0.6443 | 0.5549 | 0.7682 |
 
 
-
-    
+&nbsp;
 
 ## 🏆Result
 - 총 19 팀 참여
@@ -162,8 +165,8 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 &nbsp;
 |  | Data | F1 score | recall | precision |
 | --- | --- | --- | --- | --- |
-| 최종 제출 1 | ICDAR17_MLT + upstage data | 0.6717 -> 0.6596 | 0.5772 -> 0.5778 | 0.8031 -> 0.7685 |
-| 최종 제출 2 | ICDAR19_MLT(Except French) | 0.6719 -> 0.6843 | 0.5842 -> 0.6039 | 0.7906 -> 0.7893 |
+| 1 | ICDAR17_MLT + upstage data | 0.6717 -> 0.6596 | 0.5772 -> 0.5778 | 0.8031 -> 0.7685 |
+| 2 | ICDAR19_MLT(Except French) | 0.6719 -> 0.6843 | 0.5842 -> 0.6039 | 0.7906 -> 0.7893 |
 
 
 &nbsp;
