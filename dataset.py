@@ -1,7 +1,7 @@
 import os.path as osp
 import math
 import json
-from PIL import Image
+from PIL import Image,ImageOps
 
 import torch
 import numpy as np
@@ -9,7 +9,7 @@ import cv2
 import albumentations as A
 from torch.utils.data import Dataset
 from shapely.geometry import Polygon
-
+from augmentation import ComposedTransformation
 
 def cal_distance(x1, y1, x2, y2):
     '''calculate the Euclidean distance'''
@@ -208,6 +208,8 @@ def crop_img(img, vertices, labels, length):
 
     new_vertices = np.zeros(vertices.shape)
     if vertices.size > 0:
+        # new_vertices[:,list(np.arange(0,len(vertices),2))] = vertices[:,list(np.arange(0,len(vertices),2))] * ratio_w
+        # new_vertices[:,list(np.arange(1,len(vertices),2))] = vertices[:,list(np.arange(1,len(vertices),2))] * ratio_h
         new_vertices[:,[0,2,4,6]] = vertices[:,[0,2,4,6]] * ratio_w
         new_vertices[:,[1,3,5,7]] = vertices[:,[1,3,5,7]] * ratio_h
 
@@ -226,6 +228,9 @@ def crop_img(img, vertices, labels, length):
     if new_vertices.size == 0:
         return region, new_vertices
 
+
+    # new_vertices[:,list(np.arange(0,len(vertices),2))] -= start_w
+    # new_vertices[:,list(np.arange(1,len(vertices),2))] -= start_h
     new_vertices[:,[0,2,4,6]] -= start_w
     new_vertices[:,[1,3,5,7]] -= start_h
     return region, new_vertices
@@ -283,6 +288,7 @@ def adjust_height(img, vertices, ratio=0.2):
 
     new_vertices = vertices.copy()
     if vertices.size > 0:
+        # new_vertices[:,list(np.arange(1,len(vertices),2))] = vertices[:,list(np.arange(1,len(vertices),2))] * (new_h / old_h)
         new_vertices[:,[1,3,5,7]] = vertices[:,[1,3,5,7]] * (new_h / old_h)
     return img, new_vertices
 
@@ -312,6 +318,7 @@ def generate_roi_mask(image, vertices, labels):
     ignored_polys = []
     for vertice, label in zip(vertices, labels):
         if label == 0:
+            # ignored_polys.append(np.around(vertice.reshape((len(vertice)/2, 2))).astype(np.int32))
             ignored_polys.append(np.around(vertice.reshape((4, 2))).astype(np.int32))
     cv2.fillPoly(mask, ignored_polys, 0)
     return mask
@@ -338,7 +345,6 @@ class SceneTextDataset(Dataset):
                  normalize=True):
         with open(osp.join(root_dir, 'ufo/{}.json'.format(split)), 'r') as f:
             anno = json.load(f)
-            print('len', len(anno['images']))
 
         self.anno = anno
         self.image_fnames = sorted(anno['images'].keys())
@@ -356,31 +362,47 @@ class SceneTextDataset(Dataset):
 
         vertices, labels = [], []
         for word_info in self.anno['images'][image_fname]['words'].values():
+            if len(np.array(word_info['points']).flatten()) > 8:
+                continue
             vertices.append(np.array(word_info['points']).flatten())
             labels.append(int(not word_info['illegibility']))
 
         vertices, labels = np.array(vertices, dtype=np.float32), np.array(labels, dtype=np.int64)
+
         vertices, labels = filter_vertices(vertices, labels, ignore_under=10, drop_under=1)
 
         image = Image.open(image_fpath)
-        image, vertices = resize_img(image, vertices, self.image_size)
-        image, vertices = adjust_height(image, vertices)
-        image, vertices = rotate_img(image, vertices)
-        image, vertices = crop_img(image, vertices, labels, self.crop_size)
+        image = ImageOps.exif_transpose(image)
+        # image, vertices = resize_img(image, vertices, self.image_size)
+        # image, vertices = adjust_height(image, vertices)
+        # image, vertices = rotate_img(image, vertices)
+        # image, vertices = crop_img(image, vertices, labels, self.crop_size)
 
         if image.mode != 'RGB':
             image = image.convert('RGB')
         image = np.array(image)
+        
+        bboxes = np.reshape(vertices, (-1, 4, 2))
 
-        funcs = []
-        if self.color_jitter:
-            funcs.append(A.ColorJitter(0.5, 0.5, 0.5, 0.25))
-        if self.normalize:
-            funcs.append(A.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
-        transform = A.Compose(funcs)
+        transform = ComposedTransformation(rotate_anchors=None, rotate_range=90,
+        crop_aspect_ratio=None, crop_size=(0.5,1.0), crop_size_by='longest', hflip=False, vflip=False,
+        random_translate=True, min_image_overlap=0.9, min_bbox_overlap=0.99, min_bbox_count=1,
+        allow_partial_occurrence=False,
+        resize_to=512, keep_aspect_ratio=False, resize_based_on='longest', max_random_trials=1000,
+        brightness=0.5, contrast=0.5, saturation=0.5, hue=0.25,
+        normalize=True, mean=(0.5,0.5,0.5), std=(0.5,0.5,0.5), to_tensor=False)
+        transformed = transform(image=image,word_bboxes=bboxes)
+        
+        image = transformed['image']
+        word_bboxes = np.array(transformed['word_bboxes'],dtype=np.float32)
+        
+        # for x0, y0, x1, y1 in transformed['word_bboxes']:
+        #     transformed_bboxes.append([x0,y0,x1,y1])
+        # word_bboxes = np.array(transformed_bboxes)
+        labels = [1.0] * word_bboxes.shape[0]
 
-        image = transform(image=image)['image']
-        word_bboxes = np.reshape(vertices, (-1, 4, 2))
+        # image = transform(image=image)['image']
+        # word_bboxes = np.reshape(vertices, (-1, 4, 2))
         roi_mask = generate_roi_mask(image, vertices, labels)
 
         return image, word_bboxes, roi_mask
