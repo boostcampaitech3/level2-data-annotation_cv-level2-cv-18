@@ -182,12 +182,12 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
 
   - [ICDAR17](https://rrc.cvc.uab.es/?ch=8&com=downloads), [ICDAR19](https://rrc.cvc.uab.es/?ch=15&com=downloads)
       ```
-      python convert_mlt.py
+      python code/convert_mlt.py
       ```
       
   - [Aihub](https://aihub.or.kr/aidata/33985/download)
       ```
-      python Aihub.py
+      python code/Aihub.py
       ```
 
 3. Merge Dataset
@@ -207,5 +207,5 @@ OCR task는 글자 검출 (text detection), 글자 인식 (text recognition), �
     ```
 
     ```
-    python train.py
+    python code/train.py
     ```
